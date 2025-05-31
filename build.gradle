@@ -1,0 +1,56 @@
+plugins {
+	id 'java'
+	id("com.diffplug.spotless") version "7.0.4"
+
+}
+
+group = 'org.precommit'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation platform('org.junit:junit-bom:5.10.0')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+
+spotless {
+	java {
+		cleanthat()
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat()
+		formatAnnotations()
+	}
+	format("misc") {
+		target("*.gradle",".gitattributes",".gitignore")
+		trimTrailingWhitespace()
+		leadingSpacesToTabs()
+		endWithNewline()
+	}
+	json {
+		target(".")
+		simple()
+		prettier()
+	}
+	yaml {
+		target(".")
+		jackson()
+		prettier()
+	}
+}
+
+compileJava.dependsOn 'spotlessApply'
+
+tasks.register("gitHooksCopy",Copy) {
+	from(layout.projectDirectory.dir("scripts"))
+
+	into(".git/hooks")
+}
